@@ -1,0 +1,38 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run tests (Проверка текста)
+      run: |
+        echo "Запуск тестов..."
+        # Проверяем, что файлы не пустые
+        if find . -name "*.txt" -size 0 | grep -q .; then
+          echo "Ошибка: Найдены пустые txt файлы!"
+          exit 1
+        fi
+        echo "Все тесты пройдены успешно."
+
+    - name: Build project (Сборка)
+      run: |
+        echo "Сборка проекта..."
+        mkdir build
+        cp *.txt build/ 2>/dev/null || echo "Нет txt файлов"
+        echo "Сборка завершена."
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-text-build
+        path: build/
